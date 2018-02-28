@@ -8,18 +8,22 @@ public class ProducerConsumerApp implements Runnable {
 
 	private LinkedList<Integer> integers = new LinkedList<>();
 	private Random random = new Random();
-	private final int CAPACITY = 10;
+	private final int CAPACITY = 100;
 	private Object lock = new Object();
 
 	private void produce() throws InterruptedException{
 	
+		//both wait() and notify() realeases the lock
+		//synchronized(lock) acquires the lock
 		while(true){
 			synchronized(lock){
 				if(integers.size()==CAPACITY){
 					lock.wait();
 				}
 				integers.add(random.nextInt(100));
+				System.out.println("produce : Size: "+ integers.size()+ "  ------->  ");
 				lock.notify();
+				//Thread.sleep(100);
 			}
 		}
 		
@@ -32,7 +36,7 @@ public class ProducerConsumerApp implements Runnable {
 				if(integers.size()==0){
 					lock.wait();
 				}
-				System.out.println("Size: "+ integers.size()+ "  ------->  " + integers.removeFirst());
+				System.out.println("Consume: Size: "+ integers.size()+ "  ------->  " + integers.removeFirst());
 				lock.notify();
 			}
 		}
@@ -42,9 +46,11 @@ public class ProducerConsumerApp implements Runnable {
 	public void run(){
 		try {
 			if(Thread.currentThread().getName().equals("producer")){
+				//while(true)
 					produce();
 			}
 			else if (Thread.currentThread().getName().equals("consumer")){
+				//while(true)
 				consume();
 			}
 		} 
